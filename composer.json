@@ -1,0 +1,22 @@
+{
+    "name": "netglue/sendgrid-webhook",
+    "description": "ZF2 Module to receive Webhooks sent by SendGrid",
+    "type": "module",
+    "license": "MIT",
+    "authors" : [
+		{
+			"name" : "George Steel",
+			"email" : "george@net-glue.co.uk",
+			"homepage" : "https://netglue.uk/"
+		}
+	],
+    "minimum-stability": "dev",
+    "require": {
+
+    },
+	"autoload" : {
+		"psr-4" : {
+			"NetglueSendgrid" : "src/NetglueSendgrid/"
+		}
+	}
+}
