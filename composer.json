@@ -11,7 +11,6 @@
 		}
 	],
     "require": {
-		"psr/log" : "~1.0",
         "zendframework/zendframework": "~2.5"
     },
 	"config" : {

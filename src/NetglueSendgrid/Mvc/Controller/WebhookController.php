@@ -5,15 +5,11 @@ namespace NetglueSendgrid\Mvc\Controller;
 use Zend\Mvc\Controller\AbstractActionController;
 use Zend\View\Model\JsonModel;
 use Zend\Http\Response as HttpResponse;
-use Zend\Mvc\Application;
-use Psr\Log;
 use Zend\Authentication\Adapter\Http as BasicHttpAuth;
 use NetglueSendgrid\Service\EventEmitter;
 
 class WebhookController extends AbstractActionController
 {
-
-    use Log\LoggerAwareTrait;
 
     /**
      * @var BasicHttpAuth|null
@@ -25,11 +21,19 @@ class WebhookController extends AbstractActionController
      */
     private $emitter;
 
+    /**
+     * @param EventEmitter $service
+     */
     public function __construct(EventEmitter $service)
     {
         $this->emitter = $service;
     }
 
+    /**
+     * Receive SendGrid Events
+     *
+     * @return mixed
+     */
     public function eventAction()
     {
         /**
@@ -91,23 +95,7 @@ class WebhookController extends AbstractActionController
             'message' => $message,
             'code' => $code
         );
-        $this->log('error', sprintf('API Error: %s', $message), [$view->error]);
         return $view;
-    }
-
-    /**
-     * Logs with an arbitrary level.
-     *
-     * @param mixed $level
-     * @param string $message
-     * @param array $context
-     * @return null
-     */
-    private function log($level, $message, array $context = array())
-    {
-        if ($this->logger) {
-            $this->logger->log($level, $message, $context);
-        }
     }
 
 }
