@@ -3,6 +3,7 @@
 namespace NetglueSendgridTest\Mvc\Controller;
 
 use NetglueSendgrid\Mvc\Controller\WebhookController;
+use NetglueSendgrid\Mvc\Controller\Factory\WebhookControllerFactory;
 use Zend\Http\Request as HttpRequest;
 
 class WebhookControllerTest extends \Zend\Test\PHPUnit\Controller\AbstractHttpControllerTestCase
@@ -43,5 +44,21 @@ class WebhookControllerTest extends \Zend\Test\PHPUnit\Controller\AbstractHttpCo
         $request->getHeaders()->addHeaderLine('Authorization', 'Basic dGVzdDpwYXNzd29yZA==');
         $this->dispatch('/netglue-sendgrid-events', HttpRequest::METHOD_POST);
         $this->assertResponseStatusCode(200);
+    }
+
+    /**
+     * @expectedException RuntimeException
+     * @expectedExceptionMessage Cannot setup Basic HTTP auth without both username and password
+     */
+    public function testInvalidConfigThrowsExceptionInControllerFactory()
+    {
+        $services = $this->getApplicationServiceLocator();
+        $services->setAllowOverride(true);
+        $config = $services->get('Config');
+        $config['sendgrid']['webhook']['auth']['password'] = '';
+        $services->setService('Config', $config);
+        $cm  = $services->get('ControllerManager');
+        $factory = new WebhookControllerFactory;
+        $controller = $factory->createService($cm);
     }
 }

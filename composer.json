@@ -12,8 +12,7 @@
 	],
     "require": {
 		"psr/log" : "~1.0",
-        "zendframework/zendframework": "~2.5",
-        "zendframework/zend-mvc": "2.6.3"
+        "zendframework/zendframework": "~2.5"
     },
 	"config" : {
 		"minimum-stability" : "dev",
