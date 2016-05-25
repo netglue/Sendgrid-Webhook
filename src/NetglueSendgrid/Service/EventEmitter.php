@@ -46,6 +46,11 @@ class EventEmitter implements EventManagerAwareInterface
         $this->setEventManager($events);
     }
 
+    public function getEventIdentifiers()
+    {
+        return $this->eventIdentifier;
+    }
+
     public function receiveRequest(HttpRequest $request)
     {
         /**

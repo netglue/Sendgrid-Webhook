@@ -10,12 +10,15 @@
 			"homepage" : "https://netglue.uk/"
 		}
 	],
-    "minimum-stability": "dev",
     "require": {
 		"psr/log" : "~1.0",
         "zendframework/zendframework": "~2.5",
         "zendframework/zend-mvc": "2.6.3"
     },
+	"config" : {
+		"minimum-stability" : "dev",
+		"prefer-stable" : true
+	},
 	"autoload" : {
 		"psr-4" : {
 			"NetglueSendgrid\\" : "src/NetglueSendgrid/"
