@@ -1,10 +1,12 @@
 <?php
+declare(strict_types=1);
 
 namespace NetglueSendgridTest\Authentication\Adapter\Http;
 
 use NetglueSendgrid\Authentication\Adapter\Http\BasicInMemoryResolver as Resolver;
+use PHPUnit\Framework\TestCase;
 
-class BasicInMemoryResolverTest extends \PHPUnit_Framework_TestCase
+class BasicInMemoryResolverTest extends TestCase
 {
 
     public function testResolve()
@@ -15,5 +17,4 @@ class BasicInMemoryResolverTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($resolver->resolve('foo', 'foo', 'foo'));
         $this->assertSame($password, $resolver->resolve($username, 'foo'));
     }
-
 }

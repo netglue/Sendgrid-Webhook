@@ -9,7 +9,7 @@ return [
                 'options' => [
                     'route' => '/netglue-sendgrid-events',
                     'defaults' => [
-                        'controller' => 'NetglueSendgrid\Mvc\Controller\WebhookController',
+                        'controller' => NetglueSendgrid\Mvc\Controller\WebhookController::class,
                         'action' => 'event'
                     ],
                 ],
@@ -20,7 +20,7 @@ return [
     'sendgrid' => [
         'webhook' => [
             /**
-             * Sendgrid Webhook Support Basic Auth
+             * Sendgrid Webhook Supports Basic Auth
              * If you want to authenticate the remote sendgrid server,
              * Fill these in
              */

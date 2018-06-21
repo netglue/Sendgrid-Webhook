@@ -3,40 +3,33 @@
 namespace NetglueSendgridTest\Service;
 
 use NetglueSendgrid\Service\EventEmitter;
+use Zend\EventManager\Event;
 use Zend\Http\Request as HttpRequest;
+use PHPUnit\Framework\TestCase;
 
-class EventEmitterTest extends \Zend\Test\PHPUnit\Controller\AbstractControllerTestCase
+class EventEmitterTest extends TestCase
 {
 
     private $eventsFired = 0;
 
     public function setUp()
     {
-        $this->setUseConsoleRequest(true);
-        $this->setApplicationConfig(include __DIR__ . '/../../TestConfig.php.dist');
         parent::setUp();
-    }
-
-    public function testEmitterCanBeRetrievedFromServiceManager()
-    {
-        $services = $this->getApplicationServiceLocator();
-        $this->assertInstanceOf('NetglueSendgrid\Service\EventEmitter', $services->get('NetglueSendgrid\Service\EventEmitter'));
+        $this->eventsFired = 0;
     }
 
     public function testReceiveValidRequestTriggersEvents()
     {
-        $services = $this->getApplicationServiceLocator();
-        $emitter = $services->get('NetglueSendgrid\Service\EventEmitter');
+        $emitter = new EventEmitter();
         $request = HttpRequest::fromString(file_get_contents(__DIR__ . '/../../data/ValidSendGridRequest.txt'));
-        $em = $emitter->getEventManager();
-        $sm = $em->getSharedManager();
-        $sm->attach('NetglueSendgrid\Service\EventEmitter', '*', [$this, 'checkValidEvents']);
+        $events = $emitter->getEventManager();
+        $events->attach('*', [$this, 'checkValidEvents']);
         $this->assertSame(0, $this->eventsFired);
         $emitter->receiveRequest($request);
         $this->assertSame(11, $this->eventsFired);
     }
 
-    public function checkValidEvents($e)
+    public function checkValidEvents(Event $e)
     {
         $this->eventsFired++;
         $params = $e->getParams();
@@ -45,27 +38,24 @@ class EventEmitterTest extends \Zend\Test\PHPUnit\Controller\AbstractControllerT
         $this->assertArrayHasKey('requestBody', $params);
         $this->assertArrayHasKey('event', $params['data']);
 
-        $services = $this->getApplicationServiceLocator();
-        $emitter = $services->get('NetglueSendgrid\Service\EventEmitter');
+        $emitter = new EventEmitter();
         $identifiers = $emitter->getEventIdentifiers();
         $this->assertArrayHasKey($params['data']['event'], $identifiers);
     }
 
     public function testInvalidJsonPayload()
     {
-        $services = $this->getApplicationServiceLocator();
-        $emitter = $services->get('NetglueSendgrid\Service\EventEmitter');
+        $emitter = new EventEmitter();
         $request = new HttpRequest;
         $request->setContent('foo');
-        $em = $emitter->getEventManager();
-        $sm = $em->getSharedManager();
-        $sm->attach('NetglueSendgrid\Service\EventEmitter', '*', [$this, 'checkInvalidJson']);
+        $events = $emitter->getEventManager();
+        $events->attach('*', [$this, 'checkInvalidJson']);
         $this->eventsFired = 0;
         $emitter->receiveRequest($request);
         $this->assertSame(1, $this->eventsFired);
     }
 
-    public function checkInvalidJson($e)
+    public function checkInvalidJson(Event $e)
     {
         $this->eventsFired++;
         $params = $e->getParams();
@@ -75,8 +65,7 @@ class EventEmitterTest extends \Zend\Test\PHPUnit\Controller\AbstractControllerT
 
     public function testUnknownEventFormat()
     {
-        $services = $this->getApplicationServiceLocator();
-        $emitter = $services->get('NetglueSendgrid\Service\EventEmitter');
+        $emitter = new EventEmitter();
         $request = new HttpRequest;
         $request->setContent('[{
             "email": "example@test.com",
@@ -89,20 +78,18 @@ class EventEmitterTest extends \Zend\Test\PHPUnit\Controller\AbstractControllerT
             "reason": "500 unknown recipient",
             "status": "5.0.0"
         }]');
-        $em = $emitter->getEventManager();
-        $sm = $em->getSharedManager();
-        $sm->attach('NetglueSendgrid\Service\EventEmitter', '*', [$this, 'checkInvalidEvent']);
+        $events = $emitter->getEventManager();
+        $events->attach('*', [$this, 'checkInvalidEvent']);
         $this->eventsFired = 0;
         $emitter->receiveRequest($request);
         $this->assertSame(1, $this->eventsFired);
     }
 
-    public function checkInvalidEvent($e)
+    public function checkInvalidEvent(Event $e)
     {
         $this->eventsFired++;
         $params = $e->getParams();
         $this->assertTrue($params['error']);
         $this->assertSame(EventEmitter::EVENT_UNEXPECTED_TYPE, $e->getName());
     }
-
 }

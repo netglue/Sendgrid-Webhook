@@ -1,31 +1,30 @@
 <?php
+declare(strict_types=1);
 
 namespace NetglueSendgrid\Mvc\Controller\Factory;
 
+use NetglueSendgrid\Service\EventEmitter;
+use Psr\Container\ContainerInterface;
 use NetglueSendgrid\Mvc\Controller\WebhookController;
-use Zend\ServiceManager\FactoryInterface;
-use Zend\ServiceManager\ServiceLocatorInterface;
+use Zend\ServiceManager\AbstractPluginManager;
 use NetglueSendgrid\Authentication\Adapter\Http\BasicInMemoryResolver;
 use Zend\Authentication\Adapter\Http as BasicHttpAuth;
 
-class WebhookControllerFactory implements FactoryInterface
+class WebhookControllerFactory
 {
-    /**
-     * Return Webhook Controller
-     * @param  ServiceLocatorInterface $controllerManager
-     * @return WebhookController
-     */
-    public function createService(ServiceLocatorInterface $controllerManager)
+    public function __invoke(ContainerInterface $container) : WebhookController
     {
-        $serviceLocator = $controllerManager->getServiceLocator();
-
-        $config = $serviceLocator->get('Config');
-        $config = isset($config['sendgrid']['webhook']) ? $config['sendgrid']['webhook'] : [];
-
-        $emitter = $serviceLocator->get('NetglueSendgrid\Service\EventEmitter');
-        $controller = new WebhookController($emitter);
-
-        if(isset($config['auth']['username']) && isset($config['auth']['password'])) {
+        if ($container instanceof AbstractPluginManager) {
+            $container = $container->getServiceLocator();
+        }
+        $config = $container->get('config');
+        $config = isset($config['sendgrid']['webhook'])
+            ? $config['sendgrid']['webhook']
+            : [];
+        $controller = new WebhookController(
+            $container->get(EventEmitter::class)
+        );
+        if (isset($config['auth']['username']) && isset($config['auth']['password'])) {
             $controller->setBasicAuth($this->createBasicAuthAdapter($config['auth']));
         }
         return $controller;
@@ -33,10 +32,10 @@ class WebhookControllerFactory implements FactoryInterface
 
     private function createBasicAuthAdapter(array $config)
     {
-        if(empty($config['username']) || empty($config['password'])) {
+        if (empty($config['username']) || empty($config['password'])) {
             throw new \RuntimeException('Cannot setup Basic HTTP auth without both username and password');
         }
-        $realm = isset($config['realm']) ? $config['realm'] : 'Password Required';
+        $realm = isset($config['realm']) ? $config['realm'] : 'SendGrid';
         $resolver = new BasicInMemoryResolver($config['username'], $config['password']);
         $options = [
             'realm' => $realm,
@@ -47,5 +46,4 @@ class WebhookControllerFactory implements FactoryInterface
 
         return $adapter;
     }
-
 }

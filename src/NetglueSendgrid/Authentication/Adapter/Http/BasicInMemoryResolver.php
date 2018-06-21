@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace NetglueSendgrid\Authentication\Adapter\Http;
 
@@ -7,11 +8,13 @@ use Zend\Authentication\Adapter\Http\ResolverInterface;
 class BasicInMemoryResolver implements ResolverInterface
 {
 
+    /** @var string */
     private $username;
 
+    /** @var string */
     private $password;
 
-    public function __construct($username, $password)
+    public function __construct(string $username, string $password)
     {
         $this->username = $username;
         $this->password = $password;
@@ -28,7 +31,7 @@ class BasicInMemoryResolver implements ResolverInterface
      */
     public function resolve($username, $realm, $password = null)
     {
-        if($username === $this->username) {
+        if ($username === $this->username) {
             return $this->password;
         }
 

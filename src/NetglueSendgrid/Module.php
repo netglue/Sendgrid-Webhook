@@ -1,46 +1,36 @@
 <?php
+declare(strict_types=1);
 
 namespace NetglueSendgrid;
+
 use Zend\ModuleManager\Feature;
+use Zend\ServiceManager\Factory\InvokableFactory;
 
 class Module implements
     Feature\ConfigProviderInterface,
     Feature\ControllerProviderInterface,
     Feature\ServiceProviderInterface
 {
-    /**
-     * Include/Return module configuration
-     * @return array
-     * @implements ConfigProviderInterface
-     */
-    public function getConfig()
+
+    public function getConfig() : array
     {
         return include __DIR__ . '/../../config/module.config.php';
     }
 
-    /**
-     * Return Controller Config
-     * @return array
-     */
-    public function getControllerConfig()
+    public function getControllerConfig() : array
     {
         return [
             'factories' => [
-                'NetglueSendgrid\Mvc\Controller\WebhookController' => 'NetglueSendgrid\Mvc\Controller\Factory\WebhookControllerFactory',
+                Mvc\Controller\WebhookController::class => Mvc\Controller\Factory\WebhookControllerFactory::class,
             ],
         ];
     }
 
-    /**
-     * Return Service Config
-     * @return array
-     * @implements ServiceProviderInterface
-     */
     public function getServiceConfig()
     {
         return [
             'factories' => [
-                'NetglueSendgrid\Service\EventEmitter' => 'NetglueSendgrid\Service\Factory\EventEmitterFactory',
+                Service\EventEmitter::class => InvokableFactory::class,
             ],
         ];
     }

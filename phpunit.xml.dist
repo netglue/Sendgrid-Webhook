@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <phpunit
-	bootstrap="./test/bootstrap.php"
+	bootstrap="vendor/autoload.php"
 	colors="true"
 	convertErrorsToExceptions="true"
 	convertNoticesToExceptions="true"
@@ -9,7 +9,6 @@
 	stopOnFailure="false"
 	processIsolation="false"
 	backupGlobals="false"
-	syntaxCheck="true"
 	>
 		
 		

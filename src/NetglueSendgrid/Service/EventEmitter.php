@@ -1,11 +1,11 @@
 <?php
+declare(strict_types=1);
 
 namespace NetglueSendgrid\Service;
 
 use Zend\Http\Request as HttpRequest;
 use Zend\EventManager\EventManagerAwareTrait;
 use Zend\EventManager\EventManagerAwareInterface;
-use Zend\EventManager\EventManagerInterface;
 
 class EventEmitter implements EventManagerAwareInterface
 {
@@ -41,17 +41,13 @@ class EventEmitter implements EventManagerAwareInterface
         'group_resubscribe' => self::EVENT_GROUP_RESUBSCRIBE,
     ];
 
-    public function __construct(EventManagerInterface $events)
-    {
-        $this->setEventManager($events);
-    }
 
-    public function getEventIdentifiers()
+    public function getEventIdentifiers() : array
     {
         return $this->eventIdentifier;
     }
 
-    public function receiveRequest(HttpRequest $request)
+    public function receiveRequest(HttpRequest $request) : void
     {
         /**
          * Iterate over all events found in the body of the request
@@ -70,7 +66,7 @@ class EventEmitter implements EventManagerAwareInterface
         /**
          * Make sure that we have an array of Send Grid events
          */
-        if (!is_array($eventData)) {
+        if (! is_array($eventData)) {
             $params['message'] = 'Invalid JSON Body, or unable to decode JSON payload';
             $params['error'] = true;
             $manager->trigger(self::EVENT_UNEXPECTED_FORMAT, $this, $params);
@@ -81,10 +77,10 @@ class EventEmitter implements EventManagerAwareInterface
          * Iterate over each Send Grid Event and trigger internal event for each
          */
         foreach ($eventData as $event) {
-            $event['event'] = !isset($event['event']) ? null : $event['event'];
+            $event['event'] = ! isset($event['event']) ? null : $event['event'];
             $eventName = $this->resolveEventName($event['event']);
             $eventParams = $params;
-            if($eventName === self::EVENT_UNEXPECTED_TYPE) {
+            if ($eventName === self::EVENT_UNEXPECTED_TYPE) {
                 $eventParams['error'] = true;
                 $eventParams['message'] = 'Unexpected Event Type';
             }
@@ -96,12 +92,11 @@ class EventEmitter implements EventManagerAwareInterface
     private function resolveEventName($name)
     {
         $event = self::EVENT_UNEXPECTED_TYPE;
-        if (is_string($name) && !empty($name)) {
+        if (is_string($name) && ! empty($name)) {
             if (isset($this->eventIdentifier[$name])) {
                 $event = $this->eventIdentifier[$name];
             }
         }
         return $event;
     }
-
 }
