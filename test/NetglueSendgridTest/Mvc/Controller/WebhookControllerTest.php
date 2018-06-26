@@ -11,7 +11,7 @@ use Psr\Container\ContainerInterface;
 use Zend\Http\Request;
 use Zend\Http\Response;
 use PHPUnit\Framework\TestCase;
-use Zend\Mvc\Router\RouteMatch;
+use Zend\Router\RouteMatch;
 use Zend\View\Model\JsonModel;
 use Zend\Authentication\Adapter\Http as BasicHttpAuth;
 
